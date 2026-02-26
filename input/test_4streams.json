@@ -1,0 +1,50 @@
+{
+  "streams": [
+    {
+      "stream_id": "Resin",
+      "quantity_L": 200.0,
+      "btu_per_lb": 12500,
+      "pH": 3.0,
+      "f_ppm": 15000,
+      "solid_pct": 100.0,
+      "salt_ppm": 500,
+      "moisture_pct": 0.0
+    },
+    {
+      "stream_id": "AFFF",
+      "quantity_L": 500.0,
+      "btu_per_lb": 1,
+      "pH": 7.5,
+      "f_ppm": 5000,
+      "solid_pct": 0.5,
+      "salt_ppm": 200,
+      "moisture_pct": 99.5
+    },
+    {
+      "stream_id": "Caustic",
+      "quantity_L": 300.0,
+      "btu_per_lb": 0,
+      "pH": 13.5,
+      "f_ppm": 0,
+      "solid_pct": 0.0,
+      "salt_ppm": 8000,
+      "moisture_pct": 65.0
+    },
+    {
+      "stream_id": "Sludge",
+      "quantity_L": 400.0,
+      "btu_per_lb": 4500,
+      "pH": 5.5,
+      "f_ppm": 800,
+      "solid_pct": 35.0,
+      "salt_ppm": 3200,
+      "moisture_pct": 55.0
+    }
+  ],
+  "config": {
+    "F_total": 11.0,
+    "eta": 0.89,
+    "cost_diesel_per_L": 1.00,
+    "cost_naoh_per_L": 1.51
+  }
+}

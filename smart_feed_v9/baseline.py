@@ -1,11 +1,12 @@
 """
-AxNano Smart-Feed Algorithm v9 — Baseline 成本计算
-===================================================
-Step 2: 每条废料单独处理（不混合），计算总成本。
-       作为优化结果的对照基准。
+AxNano Smart-Feed Algorithm v9 — Baseline Cost Calculation
+===========================================================
+Step 2: Process each waste stream individually (no blending),
+        compute total cost as the optimization benchmark.
 
-即使某条流 solo 极不经济 (W 接近 0)，仍计算天文数字成本，
-以展示混合优化的价值。
+Even if a solo stream is extremely uneconomical (W near 0),
+we still compute the astronomical cost to demonstrate the value
+of blending optimization.
 """
 
 from .models import (
@@ -19,15 +20,16 @@ from .gatekeeper import (
 
 def calc_baseline(streams: list, cfg: SystemConfig) -> Schedule:
     """
-    Baseline: 每条废料单独处理。
+    Baseline: process each waste stream individually.
 
-    对每条流独立运行 Gatekeeper + 同步方程，
-    不设 W_min 下限 — 让极高成本体现混合优化的价值。
+    Runs Gatekeeper + synchronous equation independently for each stream.
+    No W_min floor — allows extremely high costs to demonstrate
+    the value of blending optimization.
     """
     phases = []
 
     for stream in streams:
-        # 单流 = 自身属性就是"混合"属性
+        # Single stream = its own properties are the "blend" properties
         blend = BlendProperties(
             btu_per_lb=stream.btu_per_lb,
             pH=stream.pH,
@@ -40,7 +42,7 @@ def calc_baseline(streams: list, cfg: SystemConfig) -> Schedule:
         r_ext = r_water + r_diesel + r_naoh
         W = calc_throughput(r_water, r_diesel, r_naoh, cfg)
 
-        # 不设 W_min 下限，允许极低吞吐量产生极高成本
+        # No W_min floor — allow very low throughput to produce very high cost
         runtime_min = stream.quantity_L / W if W > 0 else float("inf")
 
         costs = calc_phase_cost(

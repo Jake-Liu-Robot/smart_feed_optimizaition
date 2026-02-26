@@ -1,8 +1,8 @@
 """
 AxNano Smart-Feed Algorithm v9
 ==============================
-多相喂料优化算法，通过智能混合互补废料流
-降低 SCWO 反应器的运行成本。
+Multi-phase feed optimization algorithm that reduces SCWO reactor
+operating costs by intelligently blending complementary waste streams.
 
 Usage:
     from smart_feed_v9 import WasteStream, SystemConfig, run_optimization
@@ -25,12 +25,12 @@ from .reporter import full_report
 def run_optimization(streams: list, cfg: SystemConfig = None,
                      verbose: bool = True) -> dict:
     """
-    一键运行完整优化流程。
+    Run the complete optimization pipeline.
 
     Args:
-        streams: list[WasteStream] — 用户提供的废料清单
-        cfg: SystemConfig — 可调节参数（None 则使用全部默认值）
-        verbose: 是否打印完整报告
+        streams: list[WasteStream] — user-provided waste inventory
+        cfg: SystemConfig — tunable parameters (None uses all defaults)
+        verbose: whether to print the full report
 
     Returns:
         dict with keys:
@@ -42,16 +42,16 @@ def run_optimization(streams: list, cfg: SystemConfig = None,
     if cfg is None:
         cfg = SystemConfig()
 
-    # 输入验证
+    # Input validation
     _validate_streams(streams)
 
     # Step 2: Baseline
     baseline = calc_baseline(streams, cfg)
 
-    # Step 4-6: 搜索最优
+    # Step 4-6: Search for optimum
     optimized, stats = build_optimized_schedule(streams, cfg)
 
-    # Step 7: 报告
+    # Step 7: Report
     if verbose:
         full_report(streams, cfg, baseline, optimized, stats)
 
@@ -68,29 +68,29 @@ def run_optimization(streams: list, cfg: SystemConfig = None,
 
 
 def _validate_streams(streams: list):
-    """基础输入验证"""
+    """Basic input validation"""
     if not streams:
-        raise ValueError("至少需要 1 条废料流")
+        raise ValueError("At least 1 waste stream is required")
     if len(streams) > 5:
-        raise ValueError(f"最多支持 5 条废料流，当前 {len(streams)} 条")
+        raise ValueError(f"Maximum 5 waste streams supported, got {len(streams)}")
 
     ids = set()
     for s in streams:
         if not isinstance(s, WasteStream):
-            raise TypeError(f"期望 WasteStream，收到 {type(s)}")
+            raise TypeError(f"Expected WasteStream, got {type(s)}")
         if s.stream_id in ids:
-            raise ValueError(f"重复的 stream_id: {s.stream_id}")
+            raise ValueError(f"Duplicate stream_id: {s.stream_id}")
         ids.add(s.stream_id)
 
         if s.quantity_L <= 0:
-            raise ValueError(f"{s.stream_id}: quantity_L 必须 > 0")
+            raise ValueError(f"{s.stream_id}: quantity_L must be > 0")
         if s.btu_per_lb < 0:
-            raise ValueError(f"{s.stream_id}: btu_per_lb 不能为负")
+            raise ValueError(f"{s.stream_id}: btu_per_lb cannot be negative")
         if not (0 <= s.pH <= 14):
-            raise ValueError(f"{s.stream_id}: pH 必须在 0-14 之间")
+            raise ValueError(f"{s.stream_id}: pH must be between 0 and 14")
         if s.f_ppm < 0:
-            raise ValueError(f"{s.stream_id}: f_ppm 不能为负")
+            raise ValueError(f"{s.stream_id}: f_ppm cannot be negative")
         if not (0 <= s.solid_pct <= 100):
-            raise ValueError(f"{s.stream_id}: solid_pct 必须在 0-100 之间")
+            raise ValueError(f"{s.stream_id}: solid_pct must be between 0 and 100")
         if s.salt_ppm < 0:
-            raise ValueError(f"{s.stream_id}: salt_ppm 不能为负")
+            raise ValueError(f"{s.stream_id}: salt_ppm cannot be negative")

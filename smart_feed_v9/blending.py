@@ -1,8 +1,8 @@
 """
-AxNano Smart-Feed Algorithm v9 — 混合属性计算
-==============================================
-- 线性混合: BTU, F ppm, Solid%, Salt ppm «A4»
-- pH 混合: [H⁺] 浓度法（化学正确）
+AxNano Smart-Feed Algorithm v9 — Blend Property Calculations
+=============================================================
+- Linear blending: BTU, F ppm, Solid%, Salt ppm «A4»
+- pH blending: [H⁺] concentration method (chemically correct)
 """
 
 import math
@@ -11,9 +11,9 @@ from .models import WasteStream, BlendProperties
 
 def blend_linear(values: list, ratios: list) -> float:
     """
-    加权平均，适用于 BTU, F ppm, Solid%, Salt ppm «A4»
+    Weighted average, used for BTU, F ppm, Solid%, Salt ppm «A4»
 
-    P_blend = Σ(P_i × ratio_i) / Σ(ratio_i)
+    P_blend = Σ(P_i * ratio_i) / Σ(ratio_i)
     """
     total = sum(ratios)
     if total == 0:
@@ -23,12 +23,12 @@ def blend_linear(values: list, ratios: list) -> float:
 
 def blend_pH(pH_values: list, ratios: list) -> float:
     """
-    化学正确的 pH 混合:
+    Chemically correct pH blending:
     1. pH → [H⁺] = 10^(-pH)
-    2. 按体积比加权平均 [H⁺]
+    2. Volume-weighted average of [H⁺]
     3. [H⁺]_blend → pH = -log10([H⁺]_blend)
 
-    注: 忽略缓冲容量，对强酸/强碱废料结果合理。
+    Note: Ignores buffer capacity; results are reasonable for strong acid/base waste.
     """
     total = sum(ratios)
     if total == 0:
@@ -40,7 +40,7 @@ def blend_pH(pH_values: list, ratios: list) -> float:
     ) / total
 
     if h_concentration <= 0:
-        return 14.0  # 极端碱性
+        return 14.0  # Extremely alkaline
     return -math.log10(h_concentration)
 
 
@@ -48,10 +48,10 @@ def calc_blend_properties(
     streams: list, ratios: tuple
 ) -> BlendProperties:
     """
-    计算一组废料按给定配比混合后的属性。
+    Calculate blended properties for a set of waste streams at given ratios.
 
-    BTU, F ppm, Solid%, Salt: 线性加权平均 «A4»
-    pH: [H⁺] 浓度混合法
+    BTU, F ppm, Solid%, Salt: linear weighted average «A4»
+    pH: [H⁺] concentration mixing method
     """
     ratio_list = list(ratios)
 
