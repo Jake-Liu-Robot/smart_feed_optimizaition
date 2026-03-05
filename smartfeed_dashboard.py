@@ -422,16 +422,18 @@ code/
     <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:{ACCENT};font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 16px 0;">What is Smart-Feed?</div>
     <div style="color:{TEXT_PRI};font-size:14px;line-height:1.9;">
       AxNano's SCWO (Supercritical Water Oxidation) reactor destroys <b style="color:{CYAN};">PFAS</b> and hazardous waste.
+      However, waste streams are chaotic — if fed arbitrarily into the reactor, large amounts of costly
+      external additives (diesel, NaOH, DI water) are required to meet reactor boundary conditions.<br><br>
       Different waste streams have complementary properties — high BTU vs low BTU,
-      acidic vs alkaline, solid vs liquid.<br><br>
+      acidic vs alkaline, solid vs liquid.
       <span style="color:{ACCENT};font-weight:700;">Smart-Feed</span> finds the optimal blending plan to minimize
-      external inputs (diesel, NaOH, DI water), reducing operating cost by up to
-      <span style="color:{GREEN};font-weight:700;">40–50 %</span> compared to processing each stream individually.
+      external inputs, reducing operating cost by up to
+      <span style="color:{GREEN};font-weight:700;">20 %</span> compared to processing each stream individually.
     </div>
   </div>
   <div style="flex:2;min-width:240px;display:flex;flex-direction:column;gap:12px;justify-content:center;">
     <div style="{_CARD_ACC}text-align:center;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:{ACCENT};">40-50%</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:{ACCENT};">20%</div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:{TEXT_DIM};letter-spacing:0.1em;margin-top:4px;">COST REDUCTION</div>
     </div>
     <div style="{_CARD_ACC}text-align:center;">
@@ -752,10 +754,13 @@ code/
                 color = STREAM_COLORS[i % len(STREAM_COLORS)]
                 b = ph.blend_props
 
-                # Safety checks
-                eff_solid = b.solid_pct / (1 + ph.r_water) if ph.r_water > 0 else b.solid_pct
-                eff_salt = b.salt_ppm / (1 + ph.r_water) if ph.r_water > 0 else b.salt_ppm
-                btu_eff = b.btu_per_lb / (1 + ph.r_water)
+                # Safety checks — effective values after ALL additives (water + diesel + NaOH)
+                r_total = ph.r_water + ph.r_diesel + ph.r_naoh  # total external volume per unit waste
+                dilution = 1.0 + r_total
+                eff_solid = b.solid_pct / dilution
+                eff_salt = b.salt_ppm / dilution
+                # BTU after water dilution + diesel heat contribution
+                btu_eff = b.btu_per_lb / (1.0 + ph.r_water) + ph.r_diesel * cfg.BTU_diesel * cfg.eta
                 solid_ok = eff_solid <= cfg.solid_max_pct
                 salt_ok = eff_salt <= cfg.salt_max_ppm
                 w_ok = ph.W >= cfg.W_min
